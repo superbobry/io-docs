@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />    
+    <link rel="stylesheet" href="#{prefix}../css/style.css" />
+    <title>Io Reference</title>
+  </head>
+  <body>
+    <div id="content">
+      <h1>Io Reference</h1>
+      #{blocks join("\n")}
+    </div>
+  </body>
+</html>

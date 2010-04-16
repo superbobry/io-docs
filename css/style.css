@@ -1,0 +1,104 @@
+/* Style reset
+-----------------------------------------------------------------------------*/
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+    background: transparent;
+}
+ol, ul { list-style: none;}
+blockquote, q { quotes: none;}
+:focus { outline: 0; }
+ins { text-decoration: none; }
+del { text-decoration: line-through; }
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+html { height: 100%; }
+body {
+    font: 12px/18px Arial, Tahoma, Verdana, sans-serif;
+    height: 100%;
+}
+a {
+    color: blue;
+    outline: none;
+    text-decoration: underline;
+}
+a:hover { text-decoration: none; }
+
+
+/* Global styles
+-----------------------------------------------------------------------------*/
+
+html { height: auto; }
+
+a {
+    color: #777777;
+    text-decoration: none;
+}
+
+#content {
+    margin: auto 4em;
+    font-size: 110%;
+}
+
+pre, code {
+    font-size: 80%;
+}
+
+h1 {
+    font-size: 3em;
+    margin: 1.6em 0 3em;
+}
+
+h2 { 
+    font-size: 1.5em;
+    margin: 1em 0;
+}
+
+.ref-column { 
+    line-height: 1.4em; 
+    float: left; 
+    margin-right: 6em;
+    margin-bottom: 2em;
+}
+.ref-item.selected a { 
+    color: #000000;
+    font-weight: bold; 
+}
+
+.ref-details { 
+    float: left; 
+    clear: both; 
+    width: 60%; 
+}
+
+.ref-details hr {
+    border: none;
+    background-color: #DDDDDD;
+    height: .2em;
+    margin-top: 4em;
+    margin-bottom: 2em;
+}
+.ref-description p,
+.ref-slots dl { 
+    margin: 2em 0 1.4em;
+}
+
+.ref-slots dt { font-weight: bold; }
+.ref-slots dd { 
+    margin-left: 2em; 
+    margin-top: .8em;
+}
