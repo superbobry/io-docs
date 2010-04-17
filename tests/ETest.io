@@ -94,4 +94,4 @@ ETest := UnitTest clone do(
     )
 )
 
-if(isLaunchScript, ETest run, ETest)
+if(isLaunchScript, ETest run)
