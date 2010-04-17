@@ -1,14 +1,17 @@
-Meta := Object clone do(
-    setSlot("category")
-
-    with := method(category,
-        meta := self clone
-        meta category := category
-        meta
-    )
-)
-
 MetaCacheTest := UnitTest clone do(
+    setUp := method(
+        # Meta mock object.
+        self Meta := Object clone do(
+            setSlot("category")
+
+            with := method(category,
+                meta := self clone
+                meta category := category
+                meta
+            )
+        )
+    )
+
     testInit := method(
         # Checking that cloning has no effect on MetaCache.
         assertEquals(MetaCache clone uniqueId, MetaCache uniqueId)
@@ -65,7 +68,9 @@ MetaCacheTest := UnitTest clone do(
 
         # Testing the case where the Meta for a given object doesn't exist.
         meta := MetaCache["List"]
-        assertTrue(meta isKindOf(Meta))
+        assertTrue(
+            meta isKindOf(Lobby Meta) # Note: this is not the mock Meta!
+        )
         assertEquals("List", meta object)
 
         # Checking that the object is now stored in cache.

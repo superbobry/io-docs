@@ -4,13 +4,12 @@
 #
 # TODO:
 #   * split everything into separate files?
+#   * abstract base DocFormatter and HTMLDocFormatter objects
 #   * add filename and line numbers for each method, f.ex.:
 #     `reduce(accumulator, element, start)          [A3_List.io:70]`
 #   * add cleanup method to DocFormatter
 #   * add option for generating relative paths instead of absolute ones
 #   * make js-search work with the new internals
-#   * write unittests at least for E "templater"
-#   * try performance tuning
 
 File do(
     extract := method(type,
@@ -105,6 +104,7 @@ Meta := Object clone do(
         meta setSlot(
             data first, data rest join(" ")
         )
+        meta
     )
 
     slot := method(data,
@@ -138,6 +138,7 @@ Meta := Object clone do(
 
         # Puting slot signature and docstring into the Meta slot map.
         meta slots atPut(slot, description)
+        meta
     )
 )
 
