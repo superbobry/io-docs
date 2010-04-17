@@ -37,29 +37,40 @@ Sequence pluralize := method(count,
 # Container object for all of the parsed information, where keys
 # are object names (extracted from `metadoc <ObjectName>` comments)
 # and values are Meta objects.
-#
-# Note: this object is singleton!
 MetaCache := Map clone do(
+    # Category <-> list(Meta, Meta ...) mapping, all the lookups
+    # through MetaCache objects() are cached there.
     cache := Map clone
-    init  := message(self) setIsActivatable(true)
 
-    categories := lazySlot(
+    # MetaCache is a singleton, which means cloning has no effect.
+    clone := lazySlot(self)
+
+    # MetaCache isn't designed to be modified after it's initially
+    # populated by DocExtractor, hence, categories should be better
+    # made a lazySlot, instead of a plain method(), but that would
+    # make the testing really complicated.
+    categories := method(
         self values map(category) unique sort remove(nil)
     )
 
+    # Returns cache subset for a given category or a reference to
+    # MetaCache if no category is given.
     objects := method(category,
-        if(cache hasKey(category), return cache at(category))
-        cache atPut(category,
-            if(category,
-                self select(k, v, v category == category)
+        if(category,
+            if(cache hasKey(category),
+                cache
             ,
-                self
-            )
-        ) at(category)
+                cache atPut(category,
+                    self select(k, v, v category == category)
+                )
+            ) at(category)
+        ,
+            self
+        )
     )
 
     squareBrackets := method(object,
-        # Looking up the meta object in the cache, if it doesn't exist,
+        # Looking up the Meta object in the cache, if it doesn't exist,
         # creating a new one.
         meta := at(object)
         meta ifNil(
@@ -261,7 +272,7 @@ DocFormatter := Object clone prependProto(ProgressMixIn) do(
         )
         meta slots keys sort foreach(slot,
             details insert(
-                E dl(id=slot, # Check for deprecation?
+                E dl(id=slot beforeSeq("("), # Check for deprecation?
                     E dt(slot),
                     E dd(meta slots at(slot))
                 )

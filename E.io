@@ -1,4 +1,5 @@
 # `E` is a very-very-very basic templating engine, E being a short for Element, really :)
+# The idea doesn't belong to the author and was taken from <URL_HERE>.
 #
 # Example:
 #     E div(class="wrapper",
