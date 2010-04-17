@@ -1,4 +1,4 @@
-# `E` is a very-very-very basic templating engine.
+# `E` is a very-very-very basic templating engine, E being a short for Element, really :)
 #
 # Example:
 #     E div(class="wrapper",
@@ -10,16 +10,16 @@
 #
 # TODO:
 #   * pretty printing
-#   * element validation (is it needed?)
+#   * tag validation (is it needed?)
 #   * more structure manipulation methods (probably when there will be
 #     more usecases availible)
 
-ESelfClosingTags := List with(
-    "br", "hr", "input", "img", "meta", "rel", "spacer",
-    "link", "frame", "base"
-)
-
 E := Object clone do(
+    SelfClosing := List with(
+        "br", "hr", "input", "img", "meta", "rel", "spacer",
+        "link", "frame", "base"
+    )
+
     init := method(
         self tag   ::= nil
         self inner := list()
@@ -40,9 +40,14 @@ E := Object clone do(
 
     asString := method(
         attrs := if(attrs size > 0,
-            attrs map(attr, value,
-                "#{attr}=\"#{value}\"" interpolate
-            ) join(" ") prependSeq(" ")
+            # Note: attrs with empty or nil values won't get printed.
+            # Note: sorting is needed, since item order in Map keys is
+            # undefined.
+            attrs = attrs select(attr, value,
+                value and value ?size > 0
+            ) keys sort map(attr,
+                " #{attr}=\"#{self attrs at(attr)}\"" interpolate
+            ) join
         ,
             "")
 
@@ -52,7 +57,7 @@ E := Object clone do(
         #     Text
         #   </tag>
         # </tag>
-        if(tag in(ESelfClosingTags),
+        if(tag in(SelfClosing),
             "<#{self tag}#{attrs} />"
         ,
             "<#{self tag}#{attrs}>#{self inner join}</#{self tag}>"

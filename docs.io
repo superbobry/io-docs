@@ -15,7 +15,7 @@
 File do(
     extract := method(type,
         slices := list()
-        type = type .. " "
+        type = type .. " " # Forcing `<type> ` probably breaks some comments.
         list(
             list("//" .. type, "\n"), // Comment
             list("#"  .. type, "\n"), #  Comment
@@ -40,18 +40,22 @@ Sequence pluralize := method(count,
 #
 # Note: this object is singleton!
 MetaCache := Map clone do(
-    init := message(self) setIsActivatable(true)
+    cache := Map clone
+    init  := message(self) setIsActivatable(true)
 
     categories := lazySlot(
         self values map(category) unique sort remove(nil)
     )
 
     objects := method(category,
-        if(category,
-            self select(k, v, v category == category)
-        ,
-            self
-        )
+        if(cache hasKey(category), return cache at(category))
+        cache atPut(category,
+            if(category,
+                self select(k, v, v category == category)
+            ,
+                self
+            )
+        ) at(category)
     )
 
     squareBrackets := method(object,
@@ -84,7 +88,7 @@ Meta := Object clone do(
     )
 
     with := method(data,
-        # Extractring meta signature: <ObjectName> [category|description] ...
+        # Extractring meta signature: <ObjectName> [category|description|etc] ...
         data = data split(" ", "\t")
         meta := MetaCache[data removeFirst] # Looking up the Meta object.
         meta setSlot(
@@ -127,7 +131,8 @@ Meta := Object clone do(
 )
 
 ProgressMixIn := Object clone do(
-    width ::= 80  # Line width. (Merge this with TestRunner somehow?)
+    main  ::= nil   # Main executed method slot name.
+    width ::= 80    # Line width. (Merge this with TestRunner somehow?)
 
     init := method(self fileCount := 0)
 
@@ -138,6 +143,21 @@ ProgressMixIn := Object clone do(
         # predefined line width.
         if(self fileCount % width == 0, "\n" print)
     )
+
+    run := method(
+        ?printHeader  # Outputing header line(s), if there's any ...
+        self runtime := Date secondsToRun(
+            self getSlot(main) call
+        )
+        ?printSummary # ... and runtime information.
+    )
+
+    runQuiet := method(
+        list("printHeader", "printSummary", "done") foreach(slotName,
+            self setSlot(slotName)
+        )
+        run
+    )
 )
 
 DocExtractor := Object clone prependProto(ProgressMixIn) do(
@@ -146,42 +166,39 @@ DocExtractor := Object clone prependProto(ProgressMixIn) do(
     with := method(path, self clone setPath(path))
 
     extract := method(
-        ("Extracting docs starting from `" .. path asMutable rstrip("/") .. "`:") println
-
         # Note: what are *.m files for?
-        runtime := Date secondsToRun(
-            Directory with(path) recursiveFilesOfTypes(
-                list(".io", ".c", ".m")
-            ) foreach(file,
-                # Skipping IoVMInit file!
-                if(file name beginsWithSeq("IoVMInit"), continue)
-                # Creating / updating Meta objects ...
-                file meta foreach(data, Meta with(data))
-                # ... and processing slot docstring objects.
-                file docs foreach(data, Meta slot(data))
+        Directory with(path) recursiveFilesOfTypes(
+            list(".io", ".c", ".m")
+        ) foreach(file,
+            # Skipping IoVMInit file!
+            if(file name beginsWithSeq("IoVMInit"), continue)
+            # Creating / updating Meta objects ...
+            file meta foreach(data, Meta with(data))
+            # ... and processing slot docstring objects.
+            file docs foreach(data, Meta slot(data))
 
-                done # Just a `success` hook.
-            )
+            done # Just a `success` hook.
         )
+    )
 
-        "\n" print
-
+    printHeader  := method(
+        ("Extracting docs starting from `" .. path asMutable rstrip("/") .. "`:") println
+    )
+    printSummary := method(
         objectCount := MetaCache keys size
         slotCount   := MetaCache values reduce(count, object,
             count + object slots size, 0
         )
 
         # Printing summary.
-        "-" repeated(width) println
+        ("\n" .. "-" repeated(width)) println
         ("Processed " .. \
          fileCount .. " file" pluralize(fileCount) .. ", " ..
          objectCount .. " object" pluralize(objectCount) .. ", " ..
          slotCount .. " slot" pluralize(slotCount) ..
-         " in #{runtime}s") interpolate println
-
-        MetaCache # For other methods.
+         " in " .. runtime .. "s") println
     )
-)
+) setMain("extract")
 
 DocFormatter := Object clone prependProto(ProgressMixIn) do(
     # The path MUST contain a trailing slash, due to the bug in Directory object.
@@ -244,7 +261,7 @@ DocFormatter := Object clone prependProto(ProgressMixIn) do(
         )
         meta slots keys sort foreach(slot,
             details insert(
-                E dl(id=slot,
+                E dl(id=slot, # Check for deprecation?
                     E dt(slot),
                     E dd(meta slots at(slot))
                 )
@@ -254,70 +271,73 @@ DocFormatter := Object clone prependProto(ProgressMixIn) do(
     )
 
     format := method(
-        "Generating documentation files in `#{self path}`:" interpolate println
+        # Root directory.
+        root := Directory with(path) createIfAbsent
 
-        runtime := Date secondsToRun(
-            # Root directory.
-            root := Directory with(path) createIfAbsent
+        # Rendering reference index file.
+        root fileNamed("index.html") open write(
+            render(list(renderCategories))
+        ) close
+        done
 
-            # Rendering reference index file.
-            root fileNamed("index.html") open write(
-                render(list(renderCategories))
+        # Rendering categories:
+        MetaCache categories foreach(category,
+            # a) creating a directory with the category name
+            dir := root directoryNamed(category) createIfAbsent
+
+            # b) creating index file listing all category objects
+            dir fileNamed("index.html") open write(
+                render(list(
+                    renderCategories(category),
+                    renderObjects(category)
+                ))
             ) close
             done
 
-            # Rendering categories:
-            MetaCache categories foreach(category,
-                # a) creating a directory with the category name
-                dir := root directoryNamed(category) createIfAbsent
-
-                # b) creating index file listing all category objects
-                dir fileNamed("index.html") open write(
+            # c) creating an html file for each object in the category
+            MetaCache objects(category) foreach(object, meta,
+                dir fileNamed(object .. ".html") open write(
                     render(list(
                         renderCategories(category),
-                        renderObjects(category)
-                    ))
+                        renderObjects(category, object),
+                        renderSlots(meta),
+                        renderDetails(meta)
+                     ))
                 ) close
                 done
-
-                # c) creating an html file for each object in the category
-                MetaCache objects(category) foreach(object, meta,
-                    dir fileNamed(object .. ".html") open write(
-                        render(list(
-                            renderCategories(category),
-                            renderObjects(category, object),
-                            renderSlots(meta),
-                            renderDetails(meta)
-                         ))
-                    ) close
-                    done
-                )
             )
         )
+    )
 
-        "\n" print
-        "-" repeated(width) println
+    printHeader  := method(
+        ("Generating documentation files in `" .. path .."`:") println
+    )
+    printSummary := method(
+        ("\n" .. "-" repeated(width)) println
         ("Created " .. fileCount .. " files in " .. runtime .. "s") println
     )
 
-    render := method(blocks, depth,
-        context := Object clone
-        context forward := message("") setIsActivatable(true)
-        context prefix := prefix
-        context blocks := blocks
+    render := method(blocks,
+        if(hasSlot("template") not,
+            template := File with("template.iohtml") contents
+            context := Object clone
+            context forward := message("") setIsActivatable(true)
+            context prefix  := prefix
+            context blocks  := nil
+        )
+
+        context blocks = blocks
         # Rendering template with the given blocks ...
-        File with("template.iohtml") contents interpolate(
-            context
-        ) asMutable replaceMap(
+        template interpolate(context) asMutable replaceMap(
             # ... and doing some minor cleanup.
             # Note: oh my, once again WHY Regex is not Core?
             Map with("\n<", "<", ">\n", ">") # Add \r?
         )
     )
-)
+) setMain("format")
 
 if(isLaunchScript,
-    DocExtractor with("../io/") extract
+    DocExtractor with("../io/libs/iovm") run
     "\n" print # Silly :(
-    DocFormatter with("reference/") format
+    DocFormatter with("reference/") run
 )
