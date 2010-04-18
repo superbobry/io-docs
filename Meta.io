@@ -1,5 +1,5 @@
 # Meta data container object, where
-#   name   is the metadata holder name (<ObjectName> to be more exact)
+#   object is the metadata holder name (<ObjectName> to be more exact)
 #   <tag>  is populted from `metadoc <ObjectName> <tag> ...`
 #   slots  are populted from `doc <ObjectName> <slotName> ...`
 Meta := Object clone do(
@@ -13,6 +13,8 @@ Meta := Object clone do(
         self category = "Uncategorized"
         self slots := Map clone
     )
+
+    asString := method("Meta for `#{object}`" interpolate)
 
     with := method(data,
         # Extractring meta signature: <ObjectName> [category|description|etc] ...

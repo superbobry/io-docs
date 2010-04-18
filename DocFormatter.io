@@ -6,6 +6,8 @@ DocFormatter := Object clone prependProto(ProgressMixIn) do(
 
     with := method(path, self clone setPath(path))
 
+    format := method()
+
     printHeader  := method(
         ("Generating documentation files in `" .. path .."` using " ..
          self type .. ":") println
@@ -19,7 +21,9 @@ DocFormatter := Object clone prependProto(ProgressMixIn) do(
 
 JSONDocFormatter := DocFormatter clone do(
     format := method(
-        MetaCache values first asJson println
+        Directory with(path) fileNamed("reference.json") open write(
+            MetaCache values asJson
+        ) close
         done
     )
 )
