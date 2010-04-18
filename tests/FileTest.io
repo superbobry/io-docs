@@ -1,6 +1,8 @@
 # Note: FileCollector doesn't handle tests with equal names currently,
 # so this test will probably override default FileTest.
 
+Common
+
 FileTest := UnitTest clone do(
     setUp := method(
         self file := File with("test.me") open write("""

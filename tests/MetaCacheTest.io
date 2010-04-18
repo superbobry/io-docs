@@ -37,28 +37,20 @@ MetaCacheTest := UnitTest clone do(
         assertEquals(list("Core", "Testing"), MetaCache categories)
     )
 
-    testObjects := method(
+    testCurlyBrackets := method(
         MetaCache atPut("UnitTest", Meta with("Testing"))
         MetaCache atPut("List", Meta with("Core"))
         MetaCache atPut("Map", Meta with("Core"))
 
         # Testing the case where the category is unspecified,
         # expecting all of the objects to be returned.
-        objects := MetaCache objects
+        objects := MetaCache{}
         assertEquals(MetaCache size, objects size)
         assertEquals(MetaCache keys, objects keys)
         assertEquals(MetaCache values, objects values)
 
-        # Testing the case where the objects for a given category
-        # aren't cached.
-        objects := MetaCache objects("Core")
-        assertEquals(2, objects size)
-        assertEquals(list("List", "Map"), objects keys sort)
-        assertTrue(MetaCache cache hasKey("Core")) # Checking that the query is cached now.
-
-        # Testing the case where the objects for a given category
-        # is cached.
-        objects := MetaCache objects("Core")
+        # Testing the normal case.
+        objects := MetaCache{"Core"}
         assertEquals(2, objects size)
         assertEquals(list("List", "Map"), objects keys sort)
     )

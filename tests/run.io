@@ -2,6 +2,6 @@
 
 UnitTest
 
-doFile("docs.io") # Unreliable!
+Importer addSearchPath("..")
 
 if(isLaunchScript, DirectoryCollector run)
