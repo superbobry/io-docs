@@ -60,10 +60,17 @@ DocFormatter := Object clone prependProto(ProgressMixIn) do(
             E div(class="ref-slots")
         )
         meta slots keys sort foreach(slot,
+            description := meta slots at(slot)
+            class := if(description beginsWithSeq("Deprecated"),
+                "deprecated"
+            ,
+                if(description beginsWithSeq("Private"),
+                    "private", nil)
+            )
             details insert(
-                E dl(id=slot beforeSeq("("), # Check for deprecation?
+                E dl(id=slot beforeSeq("("), class=class,
                     E dt(slot),
-                    E dd(meta slots at(slot))
+                    E dd(description)
                 )
             )
         )

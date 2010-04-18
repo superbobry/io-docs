@@ -102,3 +102,6 @@ h2 {
     margin-left: 2em; 
     margin-top: .8em;
 }
+
+.deprecated { color: #5555AA; }
+.private { color: #888888; }
