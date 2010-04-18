@@ -6,7 +6,26 @@ DocFormatter := Object clone prependProto(ProgressMixIn) do(
 
     with := method(path, self clone setPath(path))
 
-    # Note: at the moment DocExtractor uses absolute paths for the inter
+    printHeader  := method(
+        ("Generating documentation files in `" .. path .."` using " ..
+         self type .. ":") println
+    )
+    printSummary := method(
+        ("\n" .. "-" repeated(width)) println
+        ("Created " .. fileCount .. " file" pluralize(fileCount) ..
+         " in " .. runtime .. "s") println
+    )
+) setMain("format")
+
+JSONDocFormatter := DocFormatter clone do(
+    format := method(
+        MetaCache values first asJson println
+        done
+    )
+)
+
+HTMLDocFormatter := DocFormatter clone do(
+    # Note: at the moment HTMLDocExtractor uses absolute paths for cross
     # references between entities.
     prefix := lazySlot(Directory currentWorkingDirectory .. "/" .. path)
 
@@ -116,15 +135,6 @@ DocFormatter := Object clone prependProto(ProgressMixIn) do(
         )
     )
 
-    printHeader  := method(
-        ("Generating documentation files in `" .. path .."`:") println
-    )
-    printSummary := method(
-        ("\n" .. "-" repeated(width)) println
-        ("Created " .. fileCount .. " files" pluralize(fileCount) ..
-         " in " .. runtime .. "s") println
-    )
-
     render := method(blocks,
         if(hasSlot("template") not,
             template := File with("template.iohtml") contents
@@ -142,4 +152,4 @@ DocFormatter := Object clone prependProto(ProgressMixIn) do(
             Map with("\n<", "<", ">\n", ">") # Add \r?
         )
     )
-) setMain("format")
+)

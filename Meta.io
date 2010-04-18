@@ -16,8 +16,12 @@ Meta := Object clone do(
 
     with := method(data,
         # Extractring meta signature: <ObjectName> [category|description|etc] ...
-        data = data split(" ", "\t")
-        meta := MetaCache[data removeFirst] # Looking up the Meta object.
+        line := data beforeSeq("\n") split(" ", "\t")
+        meta := MetaCache[line removeFirst] # Looking up the Meta object.
+        # IMPORTANT: why afterSeq() returns `nil` if a given sequence is not found
+        # while beforeSeq() returns ""?
+        data = data afterSeq("\n")
+        data ifNil(data = "") # FIXME: ugly :(
         # Possible optimization: construct a separate data structure once
         # the category metatag value arrives:
         #
@@ -25,7 +29,7 @@ Meta := Object clone do(
         #     CategoryCache atPut(data first, data rest join(" "))
         # )
         meta setSlot(
-            data first, data rest join(" ")
+            line removeFirst, line join(" ") appendSeq(data)
         )
         meta
     )

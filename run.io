@@ -13,8 +13,10 @@
 #   * add option for generating relative paths instead of absolute ones
 #   * make js-search work with the new internals
 
+DocFormatter
+
 if(isLaunchScript,
     DocExtractor with("../io/libs/iovm") run
     "\n" print # Silly :(
-    DocFormatter with("reference/") run
+    JSONDocFormatter with("reference/") run
 )

@@ -23,11 +23,20 @@ MetaTest := UnitTest clone do(
         assertEquals("That Guy", updatedMeta credits)
         assertEquals(meta uniqueId, updatedMeta uniqueId)
 
+        MetaCache empty
+
         # Checking that tab separated words are also processed correctly,
         # though that's not likely to happen in the real world.
         meta := Meta with("UnitTest\tdescription\tYet another testing framework.")
         assertEquals("UnitTest", meta object)
         assertEquals("Yet another testing framework.", meta description)
+
+        MetaCache empty
+
+        meta := Meta with("UnitTest description\nYet another testing framework.")
+        assertEquals("UnitTest", meta object)
+        assertEquals("Yet another testing framework.", meta description)
+
     )
 
     testSlot := method(

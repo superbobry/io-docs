@@ -1,3 +1,13 @@
+Object asJson := method(
+    result := Map clone
+    self foreachSlot(slotName, slotValue,
+        if(getSlot("slotValue") isActivatable not,
+            result atPut(slotName, slotValue)
+        )
+    )
+    result asJson
+)
+
 File do(
     extract := method(type,
         slices := list()
