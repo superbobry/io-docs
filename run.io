@@ -3,7 +3,7 @@
 DocFormatter
 
 if(isLaunchScript,
-    DocExtractor with("../io/libs/iovm") run
+    DocExtractor with("../io/libs/iovm/io") run
     "\n" print # Silly :(
-    JSONDocFormatter with("reference/") run
+    DocFormatter as("json") with("reference/") run
 )

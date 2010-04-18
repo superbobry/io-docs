@@ -6,7 +6,21 @@ DocFormatter := Object clone prependProto(ProgressMixIn) do(
 
     with := method(path, self clone setPath(path))
 
-    format := method()
+    as := method(type,
+        if(call argCount == 0,
+            Exception raise("please specify formatter type")
+        )
+
+        try(
+            formatter := Lobby getSlot(type asUppercase .. "DocFormatter")
+        ) catch(Exception,
+            Exception raise(
+                type asUppercase .. "DocFormatter is not implemented"
+            )
+        )
+
+        formatter
+    )
 
     printHeader  := method(
         ("Generating documentation files in `" .. path .."` using " ..
@@ -21,7 +35,9 @@ DocFormatter := Object clone prependProto(ProgressMixIn) do(
 
 JSONDocFormatter := DocFormatter clone do(
     format := method(
-        Directory with(path) fileNamed("reference.json") open write(
+        Directory with(path) createIfAbsent fileNamed(
+            "reference.json"
+        ) open write(
             MetaCache values asJson
         ) close
         done

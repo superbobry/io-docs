@@ -30,11 +30,6 @@ MetaCacheTest := UnitTest clone do(
         MetaCache atPut("Map", Meta with("Core"))
         MetaCache atPut("Sequence", Meta with("Core"))
         assertEquals(list("Core", "Testing"), MetaCache categories)
-
-        # Checking that nil-values are filtered out.
-        MetaCache atPut("MD5", Meta)
-        MetaCache atPut("SHA1", Meta)
-        assertEquals(list("Core", "Testing"), MetaCache categories)
     )
 
     testCurlyBrackets := method(

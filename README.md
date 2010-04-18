@@ -63,7 +63,7 @@ use `DocExtractor runQuiet`, which will do the job without a single line printed
 
 Example:
 
-    Io> DocExtractor with("./io/libs/iovm/") run
+    Io> DocExtractor with("../io/libs/iovm/") run
     Extracting docs starting from `../io/libs/iovm`:
     ................................................................................
     .....................
@@ -78,13 +78,13 @@ and `JSONDocFormatter`, both support the same running scheme as `DocExtractor` (
 
 Example:
   
-    Io> JSONDocFormatter with("reference/") run
+    Io> DocFormatter as("json") with("reference/") run
     Generating documentation files in `reference/` using JSONDocFormatter:
     .
     --------------------------------------------------------------------------------
 
-*Note*: the path passed to `DocFormatter with` method __should__ have a trailing slash, due
-to a bug in the `Directory` object. The same is true for `DocExtractor with`.
+*Note*: the path, passed to `DocFormatter with` method __should__ have a trailing slash, due
+to a bug in the `Directory` object.
 
 TODO
 --------

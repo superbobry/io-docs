@@ -31,7 +31,7 @@ Meta := Object clone do(
         #     CategoryCache atPut(data first, data rest join(" "))
         # )
         meta setSlot(
-            line removeFirst, line join(" ") appendSeq(data)
+            line removeFirst, line join(" ") appendSeq(data) strip
         )
         meta
     )

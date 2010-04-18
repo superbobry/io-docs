@@ -16,7 +16,11 @@ MetaCache := Map clone do(
     # made a lazySlot, instead of a plain method(), but that would
     # make the testing really complicated.
     categories := method(
-        self values map(category) unique sort remove(nil)
+        self values map(category) unique sort
+    )
+
+    modules := method(
+        self values map(module) unique sort remove("")
     )
 
     # Returns cache subset for a given category or a reference to
